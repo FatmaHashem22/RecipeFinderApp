@@ -26,6 +26,7 @@ import com.example.recipefinderapp.api.APIManager
 import com.example.recipefinderapp.model.RandomRecipesResponse
 import com.example.recipefinderapp.model.RecipesItem
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.google.android.material.tabs.TabLayoutMediator
 import retrofit2.Call
 import retrofit2.Callback
@@ -46,34 +47,84 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         Log.e("Tag","Error after creating main")
         initViews()
-        getRandoms()
+        getRandoms("All")
+        initListeners()
+    }
+
+    fun getRandoms(tags : String) {
+        progressBar.isVisible = true
+        if (tags != "All") {
+            APIManager
+                .getAPIs()
+                .getRandomTypeRecipes(
+                Constants.API_KEY,
+                tags.lowercase()
+            ).enqueue(object : Callback<RandomRecipesResponse> {
+                    override fun onResponse(
+                        call: Call<RandomRecipesResponse>,
+                        response: Response<RandomRecipesResponse>
+                    ) {
+                        progressBar.isVisible = false
+                        Log.e("OnResponse","${response.body()?.recipes}")
+                        randomRecipesAdapter.changeData(response.body()?.recipes!!)
+                    }
+
+                    override fun onFailure(call: Call<RandomRecipesResponse>, t: Throwable) {
+                        progressBar.isVisible = false
+                        Log.e("OnFailure","$t")
+                        Toast.makeText(this@MainActivity,"Something went wrong, please try again later!",Toast.LENGTH_LONG)
+                    }
+
+                })
+        }
+        else {
+            APIManager
+                .getAPIs()
+                .getRandomRecipes(
+                    Constants.API_KEY
+                ).enqueue(object : Callback<RandomRecipesResponse> {
+                    override fun onResponse(
+                        call: Call<RandomRecipesResponse>,
+                        response: Response<RandomRecipesResponse>
+                    ) {
+                        progressBar.isVisible = false
+                        Log.e("OnResponse","${response.body()?.recipes}")
+                        randomRecipesAdapter.changeData(response.body()?.recipes!!)
+                    }
+
+                    override fun onFailure(call: Call<RandomRecipesResponse>, t: Throwable) {
+                        progressBar.isVisible = false
+                        Log.e("OnFailure","$t")
+                        Toast.makeText(this@MainActivity,"Something went wrong, please try again later!",Toast.LENGTH_LONG)
+                    }
+
+                })
+        }
 
 
     }
 
-    fun getRandoms() {
-        progressBar.isVisible = true
-        APIManager
-            .getAPIs()
-            .getRandomRecipes(
-                Constants.API_KEY
-            ).enqueue(object : Callback<RandomRecipesResponse> {
-                override fun onResponse(
-                    call: Call<RandomRecipesResponse>,
-                    response: Response<RandomRecipesResponse>
-                ) {
-                    progressBar.isVisible = false
-                    Log.e("OnResponse","${response.body()?.recipes}")
-                    randomRecipesAdapter.changeData(response.body()?.recipes!!)
-                }
+    private fun initListeners() {
 
-                override fun onFailure(call: Call<RandomRecipesResponse>, t: Throwable) {
-                    progressBar.isVisible = false
-                    Log.e("OnFailure","$t")
-                    Toast.makeText(this@MainActivity,"Something went wrong, please try again later!",Toast.LENGTH_LONG)
-                }
+        tabLayout.addOnTabSelectedListener(object : OnTabSelectedListener{
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                val type = tab!!.tag as String
+                getRandoms(type)
 
-            })
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+
+
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+
+
+            }
+
+        })
+
     }
 
     private fun initViews() {
@@ -82,8 +133,9 @@ class MainActivity : AppCompatActivity() {
         randomRecipesAdapter = RandomRecipesAdapter(listOf())
         randomRecipesRecyclerView.adapter = randomRecipesAdapter
         progressBar = findViewById(R.id.progressBar)
-        categoriesArr.addAll(listOf("main course", "side dish", "bread", "breakfast", "marinade","fingerfood",
-            "appetizer","soup","snack","salad","sauce","dessert","beverage","drink"))
+        categoriesArr.addAll(listOf("All", "Appetizer", "Beverage", "Bread", "Breakfast", "Dessert", "Drink",
+            "Fingerfood", "Main Course", "Marinade","Salad","Sauce","Side Dish", "Snack","Soup"
+            ))
         addTabs(categoriesArr)
 
     }
@@ -93,7 +145,8 @@ class MainActivity : AppCompatActivity() {
         tabs.forEach{ tab ->
             val newTab = tabLayout.newTab()
             newTab.text = tab
-            tabLayout.addTab(newTab)
+            newTab.tag = tab ?: ""
+            tabLayout.addTab(newTab,false)
         }
     }
 
