@@ -33,7 +33,7 @@
         android:textColor="@color/black"
         android:textSize="14sp"
         />
-    
+
     <androidx.cardview.widget.CardView
         android:id="@+id/card_view_search"
         android:layout_width="match_parent"
@@ -43,20 +43,49 @@
         android:layout_marginHorizontal="25dp"
         android:layout_marginTop="8dp"
         android:elevation="10dp"
-        >
+        android:backgroundTint="@color/grey">
 
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/search_view"
+<!--        <androidx.appcompat.widget.SearchView-->
+<!--            android:id="@+id/search_view"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:background="@color/grey"-->
+<!--            app:iconifiedByDefault="false"-->
+<!--            app:queryHint="Search here"-->
+<!--            android:theme="@style/ThemeOverlay.Search"-->
+<!--            />-->
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/grey"
-            app:iconifiedByDefault="false"
-            app:queryHint="Search here"
-            android:theme="@style/ThemeOverlay.Search"
-            />
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/search_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_search"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginStart="20dp"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:textSize="16sp"
+                android:textColor="@color/darkGrey"
+                android:text="Search here"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:fontFamily="@font/open_sans_semibold"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
-    
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/dish_types_tab"
         android:layout_width="match_parent"
@@ -79,7 +108,8 @@
         android:layout_marginTop="20dp"
         tools:listitem="@layout/category_item"
         android:layout_marginHorizontal="5dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:spanCount="2"
         app:layout_constraintBottom_toBottomOf="parent"
         />
 

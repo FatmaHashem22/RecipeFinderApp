@@ -1,21 +1,17 @@
 package com.example.recipefinderapp.ui.theme
 
-import android.content.Context
-import android.graphics.Canvas
+import android.content.Intent
 import android.graphics.Color
-import android.graphics.Paint
 import android.os.Bundle
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
-import android.util.AttributeSet
 import android.util.Log
-import android.view.View
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.SearchView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.toLowerCase
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
@@ -38,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var tabLayout : TabLayout
     lateinit var randomRecipesAdapter: RandomRecipesAdapter
     lateinit var randomRecipesRecyclerView: RecyclerView
+    lateinit var searchCardView : CardView
 
     lateinit var progressBar: ProgressBar
     var categoriesArr = ArrayList<String>()
@@ -51,15 +48,44 @@ class MainActivity : AppCompatActivity() {
         initListeners()
     }
 
+//    fun getRecipesByIngredients(searchQuery : String) {
+//        progressBar.isVisible = true
+//        val parsedQuery = searchQuery.split("+").map { it.trim() }
+//        APIManager
+//            .getAPIs()
+//            . getComplexSearchResults(
+//                Constants.API_KEY,
+//                parsedQuery
+//            ).enqueue(object : Callback<RandomRecipesResponse> {
+//                override fun onResponse(
+//                    call: Call<RandomRecipesResponse>,
+//                    response: Response<RandomRecipesResponse>
+//                ) {
+//                    progressBar.isVisible = false
+//                    Log.e("OnResponse","${response.body()?.recipes}")
+//                    randomRecipesAdapter.changeData(response.body()?.recipes!!)
+//                }
+//
+//                override fun onFailure(call: Call<RandomRecipesResponse>, t: Throwable) {
+//                    progressBar.isVisible = false
+//                    Log.e("OnFailure","$t")
+//                    Toast.makeText(this@MainActivity,"Something went wrong, please try again later!",Toast.LENGTH_LONG)
+//                }
+//
+//            })
+//    }
+
+
     fun getRandoms(tags : String) {
         progressBar.isVisible = true
+
         if (tags != "All") {
             APIManager
                 .getAPIs()
                 .getRandomTypeRecipes(
-                Constants.API_KEY,
-                tags.lowercase()
-            ).enqueue(object : Callback<RandomRecipesResponse> {
+                    Constants.API_KEY,
+                    tags.lowercase()
+                ).enqueue(object : Callback<RandomRecipesResponse> {
                     override fun onResponse(
                         call: Call<RandomRecipesResponse>,
                         response: Response<RandomRecipesResponse>
@@ -110,6 +136,10 @@ class MainActivity : AppCompatActivity() {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 val type = tab!!.tag as String
                 getRandoms(type)
+                val layoutManager =randomRecipesRecyclerView.layoutManager
+                layoutManager?.scrollToPosition(0)
+
+
 
             }
 
@@ -125,6 +155,27 @@ class MainActivity : AppCompatActivity() {
 
         })
 
+//        searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
+//            override fun onQueryTextSubmit(query: String?): Boolean {
+//                if (query != null) {
+//                    getRandoms(query)
+//                    val layoutManager =randomRecipesRecyclerView.layoutManager
+//                    layoutManager?.scrollToPosition(0)
+//                }
+//                return true
+//
+//            }
+//
+//            override fun onQueryTextChange(newText: String?): Boolean {
+//                return true
+//            }
+//        })
+
+        searchCardView.setOnClickListener{
+            val intent = Intent(this@MainActivity,SearchActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 
     private fun initViews() {
@@ -135,8 +186,12 @@ class MainActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
         categoriesArr.addAll(listOf("All", "Appetizer", "Beverage", "Bread", "Breakfast", "Dessert", "Drink",
             "Fingerfood", "Main Course", "Marinade","Salad","Sauce","Side Dish", "Snack","Soup"
-            ))
+        ))
         addTabs(categoriesArr)
+
+        searchCardView = findViewById(R.id.card_view_search)
+
+
 
     }
 
@@ -152,4 +207,3 @@ class MainActivity : AppCompatActivity() {
 
 
 }
-

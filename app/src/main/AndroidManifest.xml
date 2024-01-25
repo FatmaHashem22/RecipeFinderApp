@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -15,8 +15,13 @@
         android:theme="@style/Theme.RecipeFinderApp"
         tools:targetApi="31">
         <activity
+            android:name=".ui.theme.SearchActivity"
+            android:exported="false"
+            android:label="@string/title_activity_search"
+            android:theme="@style/Theme.RecipeFinderApp" />
+        <activity
             android:name=".ui.theme.MainActivity"
-            android:theme="@style/Theme.RecipeFinderApp"/>
+            android:theme="@style/Theme.RecipeFinderApp" />
         <activity
             android:name=".Splash"
             android:exported="true"

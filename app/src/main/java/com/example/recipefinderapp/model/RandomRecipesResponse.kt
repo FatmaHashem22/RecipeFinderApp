@@ -110,7 +110,7 @@ data class RecipesItem(
 	val cookingMinutes: Int? = null,
 
 	@field:SerializedName("image")
-	val image: String? = null,
+	val image: String? = null, //
 
 	@field:SerializedName("veryHealthy")
 	val veryHealthy: Boolean? = null,
@@ -158,7 +158,8 @@ data class RecipesItem(
 	val originalId: Any? = null,
 
 	@field:SerializedName("spoonacularSourceUrl")
-	val spoonacularSourceUrl: String? = null
+	val spoonacularSourceUrl: String? = null,
+
 )
 
 data class Metric(
