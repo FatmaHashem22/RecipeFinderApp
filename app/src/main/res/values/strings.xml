@@ -3,4 +3,36 @@
     <string name="title_activity_search">SearchActivity</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_recipe_details">RecipeDetailsActivity</string>
+
+    <string-array name="ingredient_list">
+        <item>milk</item>
+        <item>eggs</item>
+        <item>flour</item>
+        <item>sugar</item>
+        <item>honey</item>
+        <item>butter</item>
+        <item>olive oil</item>
+        <item>tomatoes</item>
+        <item>pesto</item>
+        <item>cheese</item>
+        <item>cheddar</item>
+        <item>heavy cream</item>
+        <item>whipping cream</item>
+        <item>chocolate</item>
+        <item>apples</item>
+        <item>bananas</item>
+        <item>oranges</item>
+        <item>strawberries</item>
+        <item>chicken</item>
+        <item>fish</item>
+        <item>salmon</item>
+        <item>tuna</item>
+        <item>shrimp</item>
+        <item>crab</item>
+        <item>calamari</item>
+        <item>beef</item>
+        <item>mushroom</item>
+
+    </string-array>
 </resources>

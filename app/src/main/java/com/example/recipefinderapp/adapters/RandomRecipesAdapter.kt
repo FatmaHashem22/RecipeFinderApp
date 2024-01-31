@@ -8,9 +8,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.recipefinderapp.R
+import com.example.recipefinderapp.RecipeClickListener
 import com.example.recipefinderapp.model.RecipesItem
 
 class RandomRecipesAdapter (var recipes: List<RecipesItem?>) : RecyclerView.Adapter<RandomRecipesAdapter.RandomRecipeViewHolder>() {
+
+    var onRandomRecipeClickListener : RecipeClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RandomRecipeViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -30,6 +33,9 @@ class RandomRecipesAdapter (var recipes: List<RecipesItem?>) : RecyclerView.Adap
             .load(item?.image)
             .centerCrop()
             .into(holder.image)
+        holder.itemView.setOnClickListener {
+            onRandomRecipeClickListener?.onRecipeClick(item?.id!!)
+        }
     }
 
     fun changeData(newList: List<RecipesItem?>) {

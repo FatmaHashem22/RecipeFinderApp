@@ -1,5 +1,6 @@
 package com.example.recipefinderapp.ui.theme.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -7,14 +8,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.example.recipefinderapp.Constants
 import com.example.recipefinderapp.R
+import com.example.recipefinderapp.RecipeClickListener
 import com.example.recipefinderapp.adapters.SearchRecipesAdapter
 import com.example.recipefinderapp.api.APIManager
 import com.example.recipefinderapp.model.RecipesByIngredientsResponse
+import com.example.recipefinderapp.ui.theme.RecipeDetailsActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -45,9 +47,18 @@ class SearchResultsFragment : Fragment() {
         Log.e("Query = ","$query")
 
         recyclerView = view.findViewById(R.id.search_recycler_view)
-        recipesAdapter = SearchRecipesAdapter(ArrayList())
+        recipesAdapter = SearchRecipesAdapter(listOf())
         recyclerView.adapter = recipesAdapter
+        recipesAdapter.onRecipeClickListener = object : RecipeClickListener {
+            override fun onRecipeClick(id: Int) {
+                val intent = Intent(requireContext(), RecipeDetailsActivity::class.java)
+                intent.putExtra("id",id)
+                startActivity(intent)
+            }
+
+        }
         progressBar = view.findViewById(R.id.progressBar)
+        progressBar.isVisible = false
         getRecipes(query)
 
         }
@@ -64,24 +75,34 @@ class SearchResultsFragment : Fragment() {
                 .getRecipesByIngredients(
                     Constants.API_KEY,
                     queryString
-                ).enqueue(object : Callback<RecipesByIngredientsResponse>{
+                ).enqueue(object : Callback<List<RecipesByIngredientsResponse>> {
+
+
                     override fun onResponse(
-                        call: Call<RecipesByIngredientsResponse>,
-                        response: Response<RecipesByIngredientsResponse>
+                        call: Call<List<RecipesByIngredientsResponse>>,
+                        response: Response<List<RecipesByIngredientsResponse>>
                     ) {
                         progressBar.isVisible = false
-                        Log.e("OnResponse","${response.body()?.recipes}")
-                        recipesAdapter.changeData(response.body()?.recipes!!)
+                        recyclerView.isVisible = true
+//                        Log.e("OnResponse","${response.body()?.recipes}")
+//                        recipesAdapter.changeData(response.body()?.recipes!!)
+                        val recipes = response.body() // Handle potential null
+                        recipes?.forEach { recipe ->
+                            Log.e("OnResponse", "$recipe")  // Log each recipe
+                        }
+                        recipesAdapter.changeData(recipes!!)
                     }
 
-                    override fun onFailure(call: Call<RecipesByIngredientsResponse>, t: Throwable) {
+                    override fun onFailure(
+                        call: Call<List<RecipesByIngredientsResponse>>,
+                        t: Throwable
+                    ) {
                         progressBar.isVisible = false
                         Log.e("OnFailure","$t")
                     }
 
                 })
         }
-
 
 
     }

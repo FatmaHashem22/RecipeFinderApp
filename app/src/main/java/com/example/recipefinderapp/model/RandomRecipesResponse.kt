@@ -44,7 +44,10 @@ data class ExtendedIngredientsItem(
 	val aisle: String? = null,
 
 	@field:SerializedName("consistency")
-	val consistency: String? = null
+	val consistency: String? = null,
+
+	@field:SerializedName("aggregateLikes")
+	val aggregateLikes: Int? = null
 )
 
 data class RecipesItem(

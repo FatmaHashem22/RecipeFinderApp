@@ -1,8 +1,10 @@
 package com.example.recipefinderapp.ui.theme
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.ComponentActivity
@@ -24,6 +26,7 @@ import com.example.recipefinderapp.R
 import com.example.recipefinderapp.adapters.SearchRecipesAdapter
 import com.example.recipefinderapp.api.APIManager
 import com.example.recipefinderapp.model.RecipesByIngredientsResponse
+import com.example.recipefinderapp.ui.theme.fragments.IngredientsListFragment
 import com.example.recipefinderapp.ui.theme.fragments.SearchResultsFragment
 import com.example.recipefinderapp.ui.theme.ui.theme.RecipeFinderAppTheme
 import retrofit2.Call
@@ -34,9 +37,7 @@ class SearchActivity : AppCompatActivity() {
 
     lateinit var cancelText : TextView
     lateinit var searchView : SearchView
-    lateinit var recyclerView: RecyclerView
-    lateinit var recipesAdapter: SearchRecipesAdapter
-    lateinit var progressBar: ProgressBar
+    lateinit var listBtn : Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
@@ -51,18 +52,15 @@ class SearchActivity : AppCompatActivity() {
             val intent = Intent(this@SearchActivity,MainActivity::class.java)
             startActivity(intent)
         }
+        searchView.setOnClickListener {
+//            listBtn.setBackgroundColor(resources.getColor(R.color.grey))
+        }
 
         searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-
+                searchView.clearFocus()
                 if (query != null) {
-//                    val bundle = Bundle()
-//                    bundle.putString("searchQuery", query.toString())
-//                    val myFragment = SearchResultsFragment() // Create the fragment with arguments
-//                    myFragment.arguments = bundle
-//                    Log.e("Passed Search: ", "$query")
-//                    pushFragment(myFragment) // Use the same instance for the transaction
-                    getSearchResults(query)
+                    getSearchResults(query,true)
                 }
 
                 return true
@@ -70,45 +68,39 @@ class SearchActivity : AppCompatActivity() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText != null) {
+                    getSearchResults(newText,false)
+                }
+
                 return true
             }
 
         })
+
+        listBtn.setOnClickListener {
+            if (listBtn.background.constantState?.equals(resources.getDrawable(R.drawable.ingredient_list_selected).constantState) == true) {
+                listBtn.setBackgroundResource(R.drawable.ingredient_list_unselected)
+                pushFragment(SearchResultsFragment(),"SearchResultsFragment")
+
+            } else {
+                listBtn.setBackgroundResource(R.drawable.ingredient_list_selected)
+                pushFragment(IngredientsListFragment(),"IngredientsListFragment")
+            }
+
+        }
     }
 
-    fun getSearchResults(query: String){
-        progressBar.isVisible = true
-        if (query != null) {
-            Log.e("Before API Call Query = ","$query")
-            val parsedQuery = query.split(",")
-            val queryString = parsedQuery.joinToString(",")
-            APIManager
-                .getAPIs()
-                .getRecipesByIngredients(
-                    Constants.API_KEY,
-                    queryString
-                ).enqueue(object : Callback<RecipesByIngredientsResponse> {
-                    override fun onResponse(
-                        call: Call<RecipesByIngredientsResponse>,
-                        response: Response<RecipesByIngredientsResponse>
-                    ) {
-                        progressBar.isVisible = false
-                        recyclerView.isVisible = true
-//                        Log.e("OnResponse","${response.body()?.recipes}")
-//                        recipesAdapter.changeData(response.body()?.recipes!!)
-                        val recipes = response.body()?.recipes ?: listOf()  // Handle potential null
-                        recipes.forEach { recipe ->
-                            Log.e("OnResponse", "$recipe")  // Log each recipe
-                        }
-                        recipesAdapter.changeData(recipes)
-                    }
-
-                    override fun onFailure(call: Call<RecipesByIngredientsResponse>, t: Throwable) {
-                        progressBar.isVisible = false
-                        Log.e("OnFailure","$t")
-                    }
-
-                })
+    fun getSearchResults(query: String, initialSearch : Boolean){
+        if (initialSearch){
+            val bundle = Bundle()
+            bundle.putString("searchQuery", query.toString())
+            val myFragment = SearchResultsFragment() // Create the fragment with arguments
+            myFragment.arguments = bundle
+            Log.e("Passed Search: ", "$query")
+            pushFragment(myFragment,"SearchResultsFragment")
+        } else {
+            val existingFragment = getCurrentFragment()
+            existingFragment?.getRecipes(query)
         }
 
     }
@@ -116,26 +108,33 @@ class SearchActivity : AppCompatActivity() {
     fun initViews() {
         cancelText = findViewById(R.id.cancel_textView)
         searchView = findViewById(R.id.search_view_bar)
-        recyclerView = findViewById(R.id.search_recycler_view)
-        recipesAdapter = SearchRecipesAdapter(ArrayList())
-        recyclerView.adapter = recipesAdapter
-        progressBar = findViewById(R.id.progressBar)
-        progressBar.isVisible = false
+        listBtn = findViewById(R.id.ingredients_list_btn)
+//        recyclerView = findViewById(R.id.search_recycler_view)
+//        recipesAdapter = SearchRecipesAdapter(ArrayList())
+//        recyclerView.adapter = recipesAdapter
+//        progressBar = findViewById(R.id.progressBar)
+
+    }
+
+    fun getCurrentFragment() : SearchResultsFragment? {
+        val fragmentManager = supportFragmentManager
+        return fragmentManager.findFragmentByTag("SearchResultsFragment") as? SearchResultsFragment
+
     }
 
 
-//    fun pushFragment(fragment: Fragment) {
-//        val fragmentManager = supportFragmentManager
-//        val fragmentTransaction = fragmentManager.beginTransaction()
-//
-//
-//
-//        if (fragmentManager.findFragmentByTag("SearchResultsFragment") == null) {
-//            fragmentTransaction
-//                .replace(R.id.search_container_fragment, fragment, "SearchResultsFragment")
-//                .commit()
-//        } else {
-//            Log.d("SearchActivity", "Fragment already exists")
-//        }
-//    }
+    fun pushFragment(fragment: Fragment,tag : String) {
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+
+
+
+        if (fragmentManager.findFragmentByTag(tag) == null) {
+            fragmentTransaction
+                .replace(R.id.search_container_fragment, fragment, tag)
+                .commit()
+        } else {
+            Log.d("SearchActivity", "Fragment already exists")
+        }
+    }
 }

@@ -8,14 +8,17 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.recipefinderapp.R
+import com.example.recipefinderapp.RecipeClickListener
 import com.example.recipefinderapp.model.Recipe
+import com.example.recipefinderapp.model.RecipesByIngredientsResponse
 import com.example.recipefinderapp.model.RecipesItem
 
-class SearchRecipesAdapter(var recipes : List<Recipe?>) : RecyclerView.Adapter<SearchRecipesAdapter.SearchViewHolder>()  {
+class SearchRecipesAdapter(var recipes : List<RecipesByIngredientsResponse?>) : RecyclerView.Adapter<SearchRecipesAdapter.SearchViewHolder>()  {
 
+    var onRecipeClickListener : RecipeClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(R.layout.category_item,parent,false)
+        val view = inflater.inflate(R.layout.search_item,parent,false)
         return SearchViewHolder(view)
     }
 
@@ -30,9 +33,12 @@ class SearchRecipesAdapter(var recipes : List<Recipe?>) : RecyclerView.Adapter<S
             .load(item?.image)
             .centerCrop()
             .into(holder.image)
+        holder.itemView.setOnClickListener {
+            onRecipeClickListener?.onRecipeClick(item?.id!!)
+        }
     }
 
-    fun changeData(newList: List<Recipe?>) {
+    fun changeData(newList: List<RecipesByIngredientsResponse?>) {
         recipes = newList
         notifyDataSetChanged()
     }

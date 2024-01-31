@@ -1,29 +1,24 @@
 package com.example.recipefinderapp.ui.theme
 
+import android.app.Activity
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.widget.EditText
 import android.widget.ProgressBar
-import android.widget.SearchView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.toLowerCase
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.example.recipefinderapp.Constants
 import com.example.recipefinderapp.R
+import com.example.recipefinderapp.RecipeClickListener
 import com.example.recipefinderapp.adapters.RandomRecipesAdapter
 import com.example.recipefinderapp.api.APIManager
 import com.example.recipefinderapp.model.RandomRecipesResponse
-import com.example.recipefinderapp.model.RecipesItem
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
-import com.google.android.material.tabs.TabLayoutMediator
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -47,34 +42,6 @@ class MainActivity : AppCompatActivity() {
         getRandoms("All")
         initListeners()
     }
-
-//    fun getRecipesByIngredients(searchQuery : String) {
-//        progressBar.isVisible = true
-//        val parsedQuery = searchQuery.split("+").map { it.trim() }
-//        APIManager
-//            .getAPIs()
-//            . getComplexSearchResults(
-//                Constants.API_KEY,
-//                parsedQuery
-//            ).enqueue(object : Callback<RandomRecipesResponse> {
-//                override fun onResponse(
-//                    call: Call<RandomRecipesResponse>,
-//                    response: Response<RandomRecipesResponse>
-//                ) {
-//                    progressBar.isVisible = false
-//                    Log.e("OnResponse","${response.body()?.recipes}")
-//                    randomRecipesAdapter.changeData(response.body()?.recipes!!)
-//                }
-//
-//                override fun onFailure(call: Call<RandomRecipesResponse>, t: Throwable) {
-//                    progressBar.isVisible = false
-//                    Log.e("OnFailure","$t")
-//                    Toast.makeText(this@MainActivity,"Something went wrong, please try again later!",Toast.LENGTH_LONG)
-//                }
-//
-//            })
-//    }
-
 
     fun getRandoms(tags : String) {
         progressBar.isVisible = true
@@ -155,25 +122,29 @@ class MainActivity : AppCompatActivity() {
 
         })
 
-//        searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
-//            override fun onQueryTextSubmit(query: String?): Boolean {
-//                if (query != null) {
-//                    getRandoms(query)
-//                    val layoutManager =randomRecipesRecyclerView.layoutManager
-//                    layoutManager?.scrollToPosition(0)
-//                }
-//                return true
-//
-//            }
-//
-//            override fun onQueryTextChange(newText: String?): Boolean {
-//                return true
-//            }
-//        })
 
         searchCardView.setOnClickListener{
             val intent = Intent(this@MainActivity,SearchActivity::class.java)
             startActivity(intent)
+        }
+
+        randomRecipesAdapter.onRandomRecipeClickListener = object : RecipeClickListener {
+            override fun onRecipeClick(id: Int) {
+
+                val intent = Intent(this@MainActivity, RecipeDetailsActivity::class.java)
+                intent.putExtra("id",id)
+                Log.e("Passed ID: ","$id")
+                startActivity(intent)
+
+//                var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+//                    result ->
+//                    if (result.resultCode == Activity.RESULT_OK){
+//                        val data : Intent? = result.data
+//                    }
+//                }
+//                resultLauncher.launch(intent)
+            }
+
         }
 
     }
