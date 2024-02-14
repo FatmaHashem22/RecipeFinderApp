@@ -32,7 +32,6 @@ class APIManager {
         }
 
         fun getAPIs() : WebServices {
-
             return getInstance().create(WebServices::class.java)
         }
 
